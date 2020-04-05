@@ -1,6 +1,5 @@
 package com.wordfinder.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.wordfinder.api.Dictionary;
@@ -13,20 +12,19 @@ import com.wordfinder.exception.WordFinderDictionaryException;
 public class WordFinderImpl implements WordFinder {
 
 	public static final String ANY_LETTER_REGEX = "[a-zA-Z]*";
-	public static final String ONE_CHARACTER_REGEX = "{1}";
+
+	private Dictionary dictionary = new TextFileDictionary();
 
 	@Override
 	public List<String> findWordsWithLettersInOrder(String lettersInOrder) throws WordFinderDictionaryException {
-		List<String> wordsWithLettersInOrder = new ArrayList<>();
-		Dictionary dictionary = new TextFileDictionary();
-		List<String> allWords = dictionary.getAllWords();
 		String regexForLetters = convertLettersToRegex(lettersInOrder);
-		for (String word : allWords) {
-			if (word.matches(regexForLetters)) {
-				wordsWithLettersInOrder.add(word);
-			}
-		}
-		return wordsWithLettersInOrder;
+		return dictionary.getAllMatchingWords(regexForLetters);
+	}
+
+	@Override
+	public List<String> findLargestWordsWithLettersInOrder(String lettersInOrder) throws WordFinderDictionaryException {
+		String regexForLetters = convertLettersToRegex(lettersInOrder);
+		return dictionary.getLargestMatchingWords(regexForLetters);
 	}
 
 	/**
@@ -43,10 +41,13 @@ public class WordFinderImpl implements WordFinder {
 		StringBuilder regexBuilder = new StringBuilder(ANY_LETTER_REGEX);
 		for (char c : letters.toCharArray()) {
 			regexBuilder.append(c);
-			regexBuilder.append(ONE_CHARACTER_REGEX);
 			regexBuilder.append(ANY_LETTER_REGEX);
 		}
 		return regexBuilder.toString();
 	}
 
+	@Override
+	public void setDictionary(Dictionary dictionary) {
+		this.dictionary = dictionary;
+	}
 }
